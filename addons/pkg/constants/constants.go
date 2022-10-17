@@ -44,6 +44,9 @@ const (
 	// CSIDefaultRefName is default refname for vsphere-csi addon
 	CSIDefaultRefName = CSIAddonName + ".tanzu.vmware.com"
 
+	// AzureDiskCSIAddonName is name of the azure-disk-csi addon
+	AzureDiskCSIAddonName = "azuredisk-csi"
+
 	// AwsEbsCSIAddonName is name of the aws-ebs-csi addon
 	AwsEbsCSIAddonName = "aws-ebs-csi"
 	// AzureFileCSIAddonName is name of the azurefile-csi addon
@@ -325,4 +328,7 @@ var (
 
 	// AwsEbsCSIConfigKind is the Kind for csi AwsEbsCSIConfig object
 	AwsEbsCSIConfigKind = reflect.TypeOf(csiv1alpha1.AwsEbsCSIConfig{}).Name()
+
+	// AzureDiskCSIConfigKind is the Kind for AzureDiskCSIConfig object
+	AzureDiskCSIConfigKind = reflect.TypeOf(csiv1alpha1.AzureDiskCSIConfig{}).Name()
 )
