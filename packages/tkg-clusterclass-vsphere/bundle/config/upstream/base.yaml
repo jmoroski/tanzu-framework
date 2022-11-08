@@ -985,6 +985,7 @@ spec:
             {{- $key -}} = {{- $val }}
             {{- end }}
             {{- end }}
+            {{- $nodePoolLabelNotExist := true }}
             {{- if .nodePoolLabels -}}
               ,
               {{- $first := true }}
@@ -995,9 +996,10 @@ spec:
                   ,
                 {{- end }}
                 {{- .key -}} = {{- .value -}}
-              {{ end }}
+                {{- $nodePoolLabelNotExist = false }}
+              {{- end }}
             {{- end }}
-            {{- if .worker.nodeLabels -}}
+            {{- if $nodePoolLabelNotExist | and .worker.nodeLabels -}}
               ,
               {{- $first := true }}
               {{- range .worker.nodeLabels }}
