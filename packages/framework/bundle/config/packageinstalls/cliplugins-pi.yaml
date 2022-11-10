@@ -10,6 +10,7 @@ metadata:
   annotations:
     kapp.k14s.io/change-rule.0: "upsert after upserting cliplugins-packageinstall/serviceaccount"
     kapp.k14s.io/change-rule.1: "delete before deleting cliplugins-packageinstall/serviceaccount"
+    packaging.carvel.dev/downgradable: ""
   labels:
     tkg.tanzu.vmware.com/package-type: "management"
 spec:

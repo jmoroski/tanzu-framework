@@ -11,6 +11,7 @@ metadata:
     kapp.k14s.io/change-rule.0: "upsert after upserting framework-packageinstall/tanzu-framework"
     kapp.k14s.io/change-rule.1: "upsert after upserting core-management-plugins-packageinstall/serviceaccount"
     kapp.k14s.io/change-rule.2: "delete before deleting core-management-plugins-packageinstall/serviceaccount"
+    packaging.carvel.dev/downgradable: ""
 
   labels:
     tkg.tanzu.vmware.com/package-type: "management"

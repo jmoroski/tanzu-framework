@@ -11,7 +11,7 @@ metadata:
     kapp.k14s.io/change-rule.0: "upsert after upserting framework-packageinstall/tanzu-framework"
     kapp.k14s.io/change-rule.1: "upsert after upserting tkr-source-controller-packageinstall/serviceaccount"
     kapp.k14s.io/change-rule.2: "delete before deleting tkr-source-controller-packageinstall/serviceaccount"
-
+    packaging.carvel.dev/downgradable: ""
   labels:
     tkg.tanzu.vmware.com/package-type: "management"
 spec:
