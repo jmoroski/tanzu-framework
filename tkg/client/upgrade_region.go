@@ -404,7 +404,7 @@ func (c *TkgClient) WaitForPackages(regionalClusterClient, currentClusterClient 
 	var packagesInstalled []kapppkgv1alpha1.Package
 
 	// Add tanzu-core-management-plugins packages to the list of packages to wait for management-cluster
-	if isRegionalCluster {
+	if isRegionalCluster && !config.IsFeatureActivated(constants.FeatureFlagPackageBasedLCM) {
 		packagesInstalled = append(packagesInstalled, kapppkgv1alpha1.Package{ObjectMeta: metav1.ObjectMeta{Name: constants.CoreManagementPluginsPackageName, Namespace: constants.TkgNamespace}})
 	}
 

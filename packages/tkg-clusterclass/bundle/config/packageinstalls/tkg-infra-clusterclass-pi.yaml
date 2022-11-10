@@ -45,7 +45,6 @@ metadata:
   annotations:
     kapp.k14s.io/change-rule.0: "upsert after upserting tkg-infra-clusterclass-packageinstall/serviceaccount"
     kapp.k14s.io/change-rule.1: "delete before deleting tkg-infra-clusterclass-packageinstall/serviceaccount"
-    packaging.carvel.dev/downgradable: ""
   labels:
     tkg.tanzu.vmware.com/package-type: "management"
 spec:
