@@ -11,6 +11,7 @@ import (
 	cliapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/buildinfo"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/plugin"
+	"github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/airgapped-network/cmd"
 )
 
 var descriptor = cliapi.PluginDescriptor{
@@ -34,8 +35,8 @@ func main() {
 	p.Cmd.PersistentFlags().StringVar(&logFile, "log-file", "", "Log file path")
 	p.Cmd.SilenceUsage = true
 	p.AddCommands(
-		publishImagestotarCmd,
-		publishImagesfromtarCmd,
+		cmd.PublishImagestotarCmd,
+		cmd.PublishImagesfromtarCmd,
 	)
 	if err := p.Execute(); err != nil {
 		os.Exit(1)

@@ -1,7 +1,7 @@
 // Copyright 2022 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-package main
+package cmd
 
 import (
 	"fmt"
@@ -25,12 +25,12 @@ type publishImagesToTarOptions struct {
 	tkgVersion      string
 	tarFilePath     string
 	customImageRepo string
-	pkgclient       ImgPkgClient
+	PkgClient       ImgPkgClient
 }
 
 var pullImage = &publishImagesToTarOptions{}
 
-var publishImagestotarCmd = &cobra.Command{
+var PublishImagestotarCmd = &cobra.Command{
 	Use:          "publish-image-to-tar",
 	Short:        "Copy images from public repo to tar files",
 	RunE:         publishImagesToTar,
@@ -38,19 +38,19 @@ var publishImagestotarCmd = &cobra.Command{
 }
 
 func init() {
-	publishImagestotarCmd.Flags().StringVarP(&pullImage.tkgImageRepo, "tkgImageRepository", "", "projects.registry.vmware.com/tkg", "TKG public repository")
-	publishImagestotarCmd.Flags().StringVarP(&pullImage.tkgVersion, "tkgVersion", "", "", "TKG version")
-	publishImagestotarCmd.Flags().StringVarP(&pullImage.customImageRepo, "customImageRepo", "", "", "custom images repository for airgapped network")
+	PublishImagestotarCmd.Flags().StringVarP(&pullImage.tkgImageRepo, "tkgImageRepository", "", "projects.registry.vmware.com/tkg", "TKG public repository")
+	PublishImagestotarCmd.Flags().StringVarP(&pullImage.tkgVersion, "tkgVersion", "", "", "TKG version")
+	PublishImagestotarCmd.Flags().StringVarP(&pullImage.customImageRepo, "customImageRepo", "", "", "custom images repository for airgapped network")
 }
 
 func (pullImage *publishImagesToTarOptions) downloadTkgCompatibilityImage() {
 	fmt.Sprintf("--- start the process of tkg-compatibility ---")
 	tkgCompatibilityRelativeImagePath := "tkg-compatibility"
 	tkgCompatibilityImagePath := path.Join(pullImage.tkgImageRepo, tkgCompatibilityRelativeImagePath)
-	imageTags := pullImage.pkgclient.imgpkgTagListImage(tkgCompatibilityImagePath)
+	imageTags := pullImage.PkgClient.ImgpkgTagListImage(tkgCompatibilityImagePath)
 	sourceImageName := tkgCompatibilityImagePath + ":" + imageTags[len(imageTags)-1]
 	tarFilename := tkgCompatibilityRelativeImagePath + "-" + imageTags[len(imageTags)-1] + ".tar"
-	pullImage.pkgclient.imgpkgCopytotar(sourceImageName, tarFilename)
+	pullImage.PkgClient.ImgpkgCopytotar(sourceImageName, tarFilename)
 	destRepo := path.Join(pullImage.customImageRepo, tkgCompatibilityRelativeImagePath)
 	imageDetails[tarFilename] = destRepo
 	fmt.Sprintf("--- finish the process of tkg-compatibility ---\n")
@@ -65,9 +65,9 @@ func (pullImage *publishImagesToTarOptions) downloadTkgBomAndComponentImages() {
 	tarnames := "tkg-bom" + "-" + pullImage.tkgVersion + ".tar"
 	destRepo := path.Join(pullImage.customImageRepo, tkgBomImagePath)
 	imageDetails[tarnames] = destRepo
-	pullImage.pkgclient.imgpkgCopytotar(sourceImageName, tarnames)
+	pullImage.PkgClient.ImgpkgCopytotar(sourceImageName, tarnames)
 	outputDir := "tmp"
-	pullImage.pkgclient.imgpkgPullImage(sourceImageName, outputDir)
+	pullImage.PkgClient.ImgpkgPullImage(sourceImageName, outputDir)
 	// read the tkg-bom file
 	tkgBomFilePath := filepath.Join(outputDir, fmt.Sprintf("tkg-bom-%s.yaml", pullImage.tkgVersion))
 	b, err := os.ReadFile(tkgBomFilePath)
@@ -87,7 +87,7 @@ func (pullImage *publishImagesToTarOptions) downloadTkgBomAndComponentImages() {
 				imageInfo.ImagePath = replaceSlash(imageInfo.ImagePath)
 				tarname := imageInfo.ImagePath + "-" + imageInfo.Tag + ".tar"
 				imageDetails[tarname] = destImageRepo
-				pullImage.pkgclient.imgpkgCopytotar(sourceImageName, tarname)
+				pullImage.PkgClient.ImgpkgCopytotar(sourceImageName, tarname)
 			}
 		}
 	}
@@ -97,13 +97,13 @@ func (pullImage *publishImagesToTarOptions) downloadTkrCompatibilityImage(tkrCom
 	fmt.Sprintf("--- start the process of tkr-compatibility ---\n")
 	// get the latest tag of tkr-compatibility image
 	tkrCompatibilityImagePath := path.Join(pullImage.tkgImageRepo, tkrCompatibilityRelativeImagePath)
-	imageTags := pullImage.pkgclient.imgpkgTagListImage(tkrCompatibilityImagePath)
+	imageTags := pullImage.PkgClient.ImgpkgTagListImage(tkrCompatibilityImagePath)
 	// inspect the tkr-compatibility image to get the list of compatible tkrs
 	tkrCompatibilityImageURL := tkrCompatibilityImagePath + ":" + imageTags[len(imageTags)-1]
 
 	sourceImageName := tkrCompatibilityImageURL
 	outputDir := "tmp"
-	pullImage.pkgclient.imgpkgPullImage(sourceImageName, outputDir)
+	pullImage.PkgClient.ImgpkgPullImage(sourceImageName, outputDir)
 	files, err := os.ReadDir("tmp")
 	if err != nil {
 		printErrorAndExit(errors.Wrapf(err, "read directory tmp failed"))
@@ -138,7 +138,7 @@ func (pullImage *publishImagesToTarOptions) downloadTkrCompatibilityImage(tkrCom
 	tarFilename := tkrCompatibilityRelativeImagePath + "-" + imageTags[len(imageTags)-1] + ".tar"
 	destImageRepo := path.Join(pullImage.customImageRepo, tkrCompatibilityRelativeImagePath)
 	imageDetails[tarFilename] = destImageRepo
-	pullImage.pkgclient.imgpkgCopytotar(sourceImageName, tarFilename)
+	pullImage.PkgClient.ImgpkgCopytotar(sourceImageName, tarFilename)
 
 	fmt.Sprintf("--- finish the process of tkr-compatibility ---\n")
 	return tkrVersions
@@ -152,11 +152,11 @@ func (pullImage *publishImagesToTarOptions) downloadTkrBomAndComponentImages(tkr
 	tarFilename := "tkr-bom" + "-" + tkrTag + ".tar"
 	destImageRepo := path.Join(pullImage.customImageRepo, "tkr-bom")
 	imageDetails[tarFilename] = destImageRepo
-	pullImage.pkgclient.imgpkgCopytotar(sourceImageName, tarFilename)
+	pullImage.PkgClient.ImgpkgCopytotar(sourceImageName, tarFilename)
 
 	sourceImageName = tkrBomImagePath + ":" + tkrTag
 	outputDir := "tmp"
-	pullImage.pkgclient.imgpkgPullImage(sourceImageName, outputDir)
+	pullImage.PkgClient.ImgpkgPullImage(sourceImageName, outputDir)
 
 	// read the tkr-bom file
 	tkrBomFilePath := filepath.Join("tmp", fmt.Sprintf("tkr-bom-%s.yaml", tkrVersion))
@@ -175,7 +175,7 @@ func (pullImage *publishImagesToTarOptions) downloadTkrBomAndComponentImages(tkr
 				imageInfo.ImagePath = replaceSlash(imageInfo.ImagePath)
 				tarname := imageInfo.ImagePath + "-" + imageInfo.Tag + ".tar"
 				imageDetails[tarname] = destImageRepo
-				pullImage.pkgclient.imgpkgCopytotar(sourceImageName, tarname)
+				pullImage.PkgClient.ImgpkgCopytotar(sourceImageName, tarname)
 			}
 		}
 	}
@@ -183,7 +183,7 @@ func (pullImage *publishImagesToTarOptions) downloadTkrBomAndComponentImages(tkr
 }
 
 func publishImagesToTar(cmd *cobra.Command, args []string) error {
-	pullImage.pkgclient = &imgpkgclient{}
+	pullImage.PkgClient = &imgpkgclient{}
 	if !IsTagValid(pullImage.tkgVersion) {
 		printErrorAndExit(fmt.Errorf("Invalid TKG Tag %s", pullImage.tkgVersion))
 	}

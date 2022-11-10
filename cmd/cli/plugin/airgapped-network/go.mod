@@ -1,4 +1,4 @@
-module github.com/vmware-tanzu/tanzu-framework/plugin/airgapped-network
+module github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/airgapped-network
 
 go 1.18
 

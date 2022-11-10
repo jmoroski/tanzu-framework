@@ -1,7 +1,7 @@
 // Copyright 2022 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-package main
+package cmd
 
 import (
 	"bytes"
@@ -22,7 +22,7 @@ import (
 type imgpkgclient struct {
 }
 
-func (pkgClient *imgpkgclient) imgpkgCopyImagefromtar(sourceImageName string, destImageRepo string, customImageRepoCertificate string) {
+func (pkgClient *imgpkgclient) ImgpkgCopyImagefromtar(sourceImageName string, destImageRepo string, customImageRepoCertificate string) {
 	confUI := ui.NewConfUI(ui.NewNoopLogger())
 	copyOptions := cmd.NewCopyOptions(confUI)
 	copyOptions.Concurrency = 1
@@ -37,7 +37,7 @@ func (pkgClient *imgpkgclient) imgpkgCopyImagefromtar(sourceImageName string, de
 	}
 }
 
-func (pkgClient *imgpkgclient) imgpkgCopytotar(sourceImageName string, destImageRepo string) {
+func (pkgClient *imgpkgclient) ImgpkgCopytotar(sourceImageName string, destImageRepo string) {
 	confUI := ui.NewConfUI(ui.NewNoopLogger())
 	copyOptions := cmd.NewCopyOptions(confUI)
 	copyOptions.TarFlags.Resume = true
@@ -61,7 +61,7 @@ func (pkgClient *imgpkgclient) imgpkgCopytotar(sourceImageName string, destImage
 	totalImgCopiedCounter++
 }
 
-func (pkgClient *imgpkgclient) imgpkgPullImage(sourceImageName string, destDir string) {
+func (pkgClient *imgpkgclient) ImgpkgPullImage(sourceImageName string, destDir string) {
 	var outputBuf, errorBuf bytes.Buffer
 	writerUI := ui.NewWriterUI(&outputBuf, &errorBuf, nil)
 	pullOptions := cmd.NewPullOptions(writerUI)
@@ -70,7 +70,7 @@ func (pkgClient *imgpkgclient) imgpkgPullImage(sourceImageName string, destDir s
 	pullOptions.Run()
 }
 
-func (pkgClient *imgpkgclient) imgpkgTagListImage(sourceImageName string) []string {
+func (pkgClient *imgpkgclient) ImgpkgTagListImage(sourceImageName string) []string {
 	tagInfo, _ := v1.TagList(sourceImageName, false, registry.Opts{})
 	var imageTags []string
 	for _, tag := range tagInfo.Tags {

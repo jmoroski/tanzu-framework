@@ -1,7 +1,7 @@
 // Copyright 2022 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-package main
+package cmd
 
 import (
 	"os"
@@ -15,12 +15,12 @@ import (
 type publishImagesFromTarOptions struct {
 	tkgTarFilePath             string
 	customImageRepoCertificate string
-	pkgClient                  ImgPkgClient
+	PkgClient                  ImgPkgClient
 }
 
 var pushImage = &publishImagesFromTarOptions{}
 
-var publishImagesfromtarCmd = &cobra.Command{
+var PublishImagesfromtarCmd = &cobra.Command{
 	Use:          "publish-image-from-tar",
 	Short:        "Copy images from tar files to private repo",
 	RunE:         publishImagesFromTar,
@@ -28,8 +28,8 @@ var publishImagesfromtarCmd = &cobra.Command{
 }
 
 func init() {
-	publishImagesfromtarCmd.Flags().StringVarP(&pushImage.tkgTarFilePath, "tkgTarFilePath", "", "", "Tar file path")
-	publishImagesfromtarCmd.Flags().StringVarP(&pushImage.customImageRepoCertificate, "customRepoCertificate", "", "", "custom repo certificate")
+	PublishImagesfromtarCmd.Flags().StringVarP(&pushImage.tkgTarFilePath, "tkgTarFilePath", "", "", "Tar file path")
+	PublishImagesfromtarCmd.Flags().StringVarP(&pushImage.customImageRepoCertificate, "customRepoCertificate", "", "", "custom repo certificate")
 }
 
 func (pushImage *publishImagesFromTarOptions) pushImageToRepo() {
@@ -48,12 +48,12 @@ func (pushImage *publishImagesFromTarOptions) pushImageToRepo() {
 
 	for tarfile, path := range data {
 		tarfile = filepath.Join(pushImage.tkgTarFilePath, tarfile)
-		pushImage.pkgClient.imgpkgCopyImagefromtar(tarfile, path, pushImage.customImageRepoCertificate)
+		pushImage.PkgClient.ImgpkgCopyImagefromtar(tarfile, path, pushImage.customImageRepoCertificate)
 	}
 
 }
 func publishImagesFromTar(cmd *cobra.Command, args []string) error {
-	pushImage.pkgClient = &imgpkgclient{}
+	pushImage.PkgClient = &imgpkgclient{}
 	pushImage.pushImageToRepo()
 	return nil
 }
