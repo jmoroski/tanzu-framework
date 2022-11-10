@@ -145,6 +145,7 @@ func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster 
 
 	if options.IsInputFileClusterClassBased {
 		bytes, err = getContentFromInputFile(options.ClusterConfigFile)
+		log.Infof("Debug: cluster config byte is %v when input file is cc based", bytes)
 		if err != nil {
 			return false, errors.Wrap(err, "unable to get cluster configuration")
 		}
@@ -155,21 +156,23 @@ func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster 
 		}
 	} else {
 		bytes, err = c.getClusterConfigurationBytes(&options.ClusterConfigOptions, infraProviderName, isManagementCluster, options.IsWindowsWorkloadCluster)
+		log.Infof("Debug: cluster config byte is %v", bytes)
 		if err != nil {
 			return false, errors.Wrap(err, "unable to get cluster configuration")
 		}
 
-		clusterConfigDir, err := c.tkgConfigPathsClient.GetClusterConfigurationDirectory()
-		if err != nil {
-			return false, err
-		}
-		configFilePath = filepath.Join(clusterConfigDir, fmt.Sprintf("%s.yaml", options.ClusterName))
-		err = utils.SaveFile(configFilePath, bytes)
-		if err != nil {
-			return false, err
-		}
+		if !config.IsFeatureActivated(constants.FeatureFlagWorkloadClusterLegacyEnabled) {
+			clusterConfigDir, err := c.tkgConfigPathsClient.GetClusterConfigurationDirectory()
+			if err != nil {
+				return false, err
+			}
+			configFilePath = filepath.Join(clusterConfigDir, fmt.Sprintf("%s.yaml", options.ClusterName))
+			err = utils.SaveFile(configFilePath, bytes)
+			if err != nil {
+				return false, err
+			}
 
-		log.Warningf("\nLegacy configuration file detected. The inputs from said file have been converted into the new Cluster configuration as '%v'", configFilePath)
+			log.Warningf("\nLegacy configuration file detected. The inputs from said file have been converted into the new Cluster configuration as '%v'", configFilePath)
 
 			// If `features.cluster.auto-apply-generated-clusterclass-based-configuration` feature-flag is not activated
 			// log command to use to create cluster using ClusterClass based config file and return
@@ -191,7 +194,6 @@ func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster 
 
 			log.Warningf("\nUsing this new Cluster configuration '%v' to create the cluster.\n", configFilePath)
 		}
-		log.Warningf("\nUsing this new Cluster configuration '%v' to create the cluster.\n", configFilePath)
 	}
 
 	log.Infof("creating workload cluster '%s'...", options.ClusterName)
@@ -209,6 +211,7 @@ func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster 
 // getClusterConfigurationBytes returns cluster configuration by taking into consideration of legacy vs clusterclass based cluster creation
 func (c *TkgClient) getClusterConfigurationBytes(options *ClusterConfigOptions, infraProviderName string, isManagementCluster, isWindowsWorkloadCluster bool) ([]byte, error) {
 	deployClusterClassBasedCluster, err := c.ShouldDeployClusterClassBasedCluster(isManagementCluster)
+	log.Infof("Debug: shouldDepoyClusterClassBasedCluster is %v", deployClusterClassBasedCluster)
 	if err != nil {
 		return nil, err
 	}

@@ -313,15 +313,29 @@ func (c *TkgClient) ShouldDeployClusterClassBasedCluster(isManagementCluster boo
 		return false, err
 	}
 
-	// Deploy management cluster always use ClusterClass based Cluster deployment
-	if isManagementCluster {
-		if isCustomOverlayPresent {
+	if isCustomOverlayPresent {
+		// Deploy management cluster always use ClusterClass based Cluster deployment
+		if isManagementCluster {
 			log.Warning("Warning: It seems like you have done some customizations to the template overlays. However, CLI might ignore those customizations when creating management-cluster.")
+			return true, nil
+		} else {
+			// Return error if user has customized template overlays, but the feature gate FeatureFlagWorkloadClusterLegacyEnabled is disabled for workload cluster
+			if !config.IsFeatureActivated(constants.FeatureFlagWorkloadClusterLegacyEnabled) {
+				return false, errors.Errorf("It seems like you have done some customizations to the template overlays. However, the feature gate FeatureFlagWorkloadClusterLegacyEnabled is %v. Please enabe it and try again", constants.FeatureFlagWorkloadClusterLegacyEnabled)
+			}
+			// Deploy legayc workload cluster if CustomOverlay is true and FeatureFlagWorkloadClusterLegacyEnabled is enabled.
+			return false, nil
 		}
-		return true, nil
+	} else {
+		// Deploy clusterclass based workload cluster when template overlays don't be customized
+		// and feature gate FeatureFlagWorkloadClusterLegacyEnabled is disabled
+		if !config.IsFeatureActivated(constants.FeatureFlagWorkloadClusterLegacyEnabled) {
+			return true, nil
+		}
+		return false, nil
 	}
 
-	deployClusterClassBasedCluster := config.IsFeatureActivated(constants.FeatureFlagForceDeployClusterWithClusterClass) || !isCustomOverlayPresent
+	deployClusterClassBasedCluster := config.IsFeatureActivated(constants.FeatureFlagForceDeployClusterWithClusterClass)
 
 	return deployClusterClassBasedCluster, nil
 }
