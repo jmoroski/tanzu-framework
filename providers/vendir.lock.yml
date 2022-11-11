@@ -10,10 +10,10 @@ directories:
   path: ytt/vendir/vsphere_cpi/_ytt_lib
 - contents:
   - git:
-      commitTitle: update bundle ref
-      sha: a9e3f16da9d01cc977122d2900ebd27332ab214b
+      commitTitle: Bump antrea package to 1.7.1 (#5521)...
+      sha: e204357caf096945b34d75d3ce3508e442ccf41a
       tags:
-      - v0.10.0-dev.2-1585-ga9e3f16d
+      - v0.13.0-dev.2-461-ge204357c
     path: .
   path: ytt/vendir/cni/_ytt_lib
 - contents:

@@ -93,6 +93,6 @@ spec:
         Multicast: false
         Multicluster: false
         SecondaryNetwork: false
-        TrafficEncapMode: false
+        TrafficControl: false
         IPsecCertAuth: false
         NodeIPAM: false

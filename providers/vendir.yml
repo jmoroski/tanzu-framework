@@ -13,8 +13,8 @@ directories:
   contents:
   - path: .
     git:
-      url: git@github.com:hangyan/community-edition.git
-      ref: a9e3f16da9d01cc977122d2900ebd27332ab214b
+      url: git@github.com:vmware-tanzu/community-edition.git
+      ref: e204357caf096945b34d75d3ce3508e442ccf41a
     includePaths:
     - addons/packages/antrea/1.7.1/bundle/config/**/*
     - addons/packages/calico/3.24.1/bundle/config/**/*

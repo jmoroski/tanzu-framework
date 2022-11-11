@@ -112,6 +112,19 @@ spec:
       noSNAT: #@ data.values.ANTREA_NO_SNAT
       #@ end
       disableUdpTunnelOffload: #@ data.values.ANTREA_DISABLE_UDP_TUNNEL_OFFLOAD
+      enableBridgingMode: #@data.values.ANTREA_ENABLE_BRIDGING_MODE
+      disableTXChecksumOffload: #@ data.values.ANTREA_DISABLE_TXCHECKSUM_OFFLOAD
+      dnsServerOverride: #@ data.values.ANTREA_DNS_SERVER_OVERRIDE
+      multicast:
+        igmpQueryInterval: #@ data.values.ANTREA_MULTICAST_IGMPQUERY_INTERVAL
+      ipsec:
+        authenticationMode: #@ data.values.ANTREA_IPSEC_AUTHENTICATION_MODE
+      ipsecCSRSigner:
+        autoApprove: #@ data.values.ANTREA_IPSEC_CSRSIGNER_AUTOAPPROVE
+        selfSignedCA: #@ data.values.ANTREA_IPSEC_CSRSIGNER_SELFSIGNEDCA
+      multicluster:
+        enable: #@ data.values.ANTREA_MULTICLUSTER_ENABLE
+        namespace: #@ data.values.ANTREA_MULTICLUSTER_NAMESPACE
       featureGates:
         #@ if data.values.NSXT_POD_ROUTING_ENABLED:
         AntreaProxy: true
@@ -128,6 +141,11 @@ spec:
         AntreaIPAM: #@ data.values.ANTREA_IPAM
         ServiceExternalIP: #@ data.values.ANTREA_SERVICE_EXTERNALIP
         Multicast: #@ data.values.ANTREA_MULTICAST
+        Multicluster: #@ data.values.ANTREA_MULTICLUSTER
+        SecondaryNetwork: #@ data.values.ANTREA_SECONDARY_NETWORK
+        TrafficControl: #@ data.values.ANTREA_TRAFFIC_CONTROL
+        IPsecCertAuth: #@ data.values.ANTREA_IPSEC_CERT_AUTH
+        NodeIPAM: #@ data.values.ANTREA_NODEIPAM
 #@ end
 ---
 #@ if data.values.CNI == "calico":
