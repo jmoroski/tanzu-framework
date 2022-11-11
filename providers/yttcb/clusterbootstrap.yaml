@@ -32,6 +32,11 @@
 #@           data.values.ANTREA_IPAM or
 #@           data.values.ANTREA_FLOWEXPORTER or
 #@           data.values.ANTREA_SERVICE_EXTERNALIP or
+#@           data.values.ANTREA_MULTICLUSTER or
+#@           data.values.ANTREA_SECONDARY_NETWORK or
+#@           data.values.ANTREA_TRAFFIC_CONTROL or
+#@           data.values.ANTREA_IPSEC_CERT_AUTH or
+#@           data.values.ANTREA_NODEIPAM or
 #@           data.values.ANTREA_MULTICAST)
 #@ end
 
