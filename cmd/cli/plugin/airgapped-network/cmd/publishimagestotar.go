@@ -188,10 +188,10 @@ func publishImagesToTar(cmd *cobra.Command, args []string) error {
 	}
 	pullImage.downloadTkgCompatibilityImage()
 	pullImage.downloadTkgBomAndComponentImages()
-	tkrVersions , err := pullImage.downloadTkrCompatibilityImage("tkr-compatibility")
-        if err != nil {
-                return errors.Wrapf(err, "Error while retrieving tkrVersions")
-        }
+	tkrVersions, err := pullImage.downloadTkrCompatibilityImage("tkr-compatibility")
+	if err != nil {
+		return errors.Wrapf(err, "Error while retrieving tkrVersions")
+	}
 	for _, tkrVersion := range tkrVersions {
 		pullImage.downloadTkrBomAndComponentImages(tkrVersion)
 	}
