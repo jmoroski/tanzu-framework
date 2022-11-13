@@ -44,7 +44,6 @@ func init() {
 }
 
 func (pullImage *publishImagesToTarOptions) downloadTkgCompatibilityImage() {
-	fmt.Sprintf("--- start the process of tkg-compatibility ---")
 	tkgCompatibilityRelativeImagePath := "tkg-compatibility"
 	tkgCompatibilityImagePath := path.Join(pullImage.tkgImageRepo, tkgCompatibilityRelativeImagePath)
 	imageTags := pullImage.PkgClient.ImgpkgTagListImage(tkgCompatibilityImagePath)
@@ -53,12 +52,9 @@ func (pullImage *publishImagesToTarOptions) downloadTkgCompatibilityImage() {
 	pullImage.PkgClient.ImgpkgCopytotar(sourceImageName, tarFilename)
 	destRepo := path.Join(pullImage.customImageRepo, tkgCompatibilityRelativeImagePath)
 	imageDetails[tarFilename] = destRepo
-	fmt.Sprintf("--- finish the process of tkg-compatibility ---\n")
-
 }
 
-func (pullImage *publishImagesToTarOptions) downloadTkgBomAndComponentImages() {
-	fmt.Sprintf("--- start the process of tkg-bom ---\n")
+func (pullImage *publishImagesToTarOptions) downloadTkgBomAndComponentImages() error {
 	tkgBomImagePath := path.Join(pullImage.tkgImageRepo, "tkg-bom")
 
 	sourceImageName := tkgBomImagePath + ":" + pullImage.tkgVersion
@@ -74,7 +70,7 @@ func (pullImage *publishImagesToTarOptions) downloadTkgBomAndComponentImages() {
 
 	// read the tkg-bom file
 	if err != nil {
-		printErrorAndExit(errors.Wrapf(err, "read tkg-bom file from %s faild", tkgBomFilePath))
+		return errors.Wrapf(err, "read tkg-bom file from %s faild", tkgBomFilePath)
 	}
 	tkgBom, err := tkrv1.NewBom(b)
 	// imgpkg copy each component's artifacts
@@ -91,10 +87,10 @@ func (pullImage *publishImagesToTarOptions) downloadTkgBomAndComponentImages() {
 			}
 		}
 	}
+	return nil
 }
 
-func (pullImage *publishImagesToTarOptions) downloadTkrCompatibilityImage(tkrCompatibilityRelativeImagePath string) []string {
-	fmt.Sprintf("--- start the process of tkr-compatibility ---\n")
+func (pullImage *publishImagesToTarOptions) downloadTkrCompatibilityImage(tkrCompatibilityRelativeImagePath string) (tkgVersion []string, err error) {
 	// get the latest tag of tkr-compatibility image
 	tkrCompatibilityImagePath := path.Join(pullImage.tkgImageRepo, tkrCompatibilityRelativeImagePath)
 	imageTags := pullImage.PkgClient.ImgpkgTagListImage(tkrCompatibilityImagePath)
@@ -106,19 +102,19 @@ func (pullImage *publishImagesToTarOptions) downloadTkrCompatibilityImage(tkrCom
 	pullImage.PkgClient.ImgpkgPullImage(sourceImageName, outputDir)
 	files, err := os.ReadDir("tmp")
 	if err != nil {
-		printErrorAndExit(errors.Wrapf(err, "read directory tmp failed"))
+		return nil, errors.Wrapf(err, "read directory tmp failed")
 	}
 	if len(files) != 1 || files[0].IsDir() {
-		printErrorAndExit(fmt.Errorf("tkr-compatibility image should only has exact one file inside"))
+		return nil, fmt.Errorf("tkr-compatibility image should only has exact one file inside")
 	}
 	tkrCompatibilityFilePath := filepath.Join("tmp", files[0].Name())
 	b, err := os.ReadFile(tkrCompatibilityFilePath)
 	if err != nil {
-		printErrorAndExit(errors.Wrapf(err, "read tkr-compatibility file from %s faild", tkrCompatibilityFilePath))
+		return nil, errors.Wrapf(err, "read tkr-compatibility file from %s faild", tkrCompatibilityFilePath)
 	}
 	tkrCompatibility := &tkrv1.CompatibilityMetadata{}
 	if err := yaml.Unmarshal(b, tkrCompatibility); err != nil {
-		printErrorAndExit(errors.Wrapf(err, "Unmarshal tkr-compatibility file %s failed", tkrCompatibilityFilePath))
+		return nil, errors.Wrapf(err, "Unmarshal tkr-compatibility file %s failed", tkrCompatibilityFilePath)
 	}
 	// find the corresponding tkg-bom entry
 	var tkrVersions []string
@@ -131,7 +127,7 @@ func (pullImage *publishImagesToTarOptions) downloadTkrCompatibilityImage(tkrCom
 		}
 	}
 	if !found {
-		printErrorAndExit(fmt.Errorf("couldn't find the corresponding tkg-bom version in the tkr-compatibility file"))
+		return nil, fmt.Errorf("couldn't find the corresponding tkg-bom version in the tkr-compatibility file")
 	}
 	// imgpkg copy the tkr-compatibility image
 	sourceImageName = tkrCompatibilityImageURL
@@ -139,13 +135,10 @@ func (pullImage *publishImagesToTarOptions) downloadTkrCompatibilityImage(tkrCom
 	destImageRepo := path.Join(pullImage.customImageRepo, tkrCompatibilityRelativeImagePath)
 	imageDetails[tarFilename] = destImageRepo
 	pullImage.PkgClient.ImgpkgCopytotar(sourceImageName, tarFilename)
-
-	fmt.Sprintf("--- finish the process of tkr-compatibility ---\n")
-	return tkrVersions
+	return tkrVersions, nil
 }
 
-func (pullImage *publishImagesToTarOptions) downloadTkrBomAndComponentImages(tkrVersion string) {
-	fmt.Sprintf("--- start the process of tkr-bom ---\n")
+func (pullImage *publishImagesToTarOptions) downloadTkrBomAndComponentImages(tkrVersion string) error {
 	tkrTag := underscoredPlus(tkrVersion)
 	tkrBomImagePath := path.Join(pullImage.tkgImageRepo, "tkr-bom")
 	sourceImageName := tkrBomImagePath + ":" + tkrTag
@@ -162,7 +155,7 @@ func (pullImage *publishImagesToTarOptions) downloadTkrBomAndComponentImages(tkr
 	tkrBomFilePath := filepath.Join("tmp", fmt.Sprintf("tkr-bom-%s.yaml", tkrVersion))
 	b, err := os.ReadFile(tkrBomFilePath)
 	if err != nil {
-		printErrorAndExit(errors.Wrapf(err, "read tkr-bom file from %s faild", tkrBomFilePath))
+		return errors.Wrapf(err, "read tkr-bom file from %s faild", tkrBomFilePath)
 	}
 	tkgBom, err := tkrv1.NewBom(b)
 	// imgpkg copy each component's artifacts
@@ -179,33 +172,36 @@ func (pullImage *publishImagesToTarOptions) downloadTkrBomAndComponentImages(tkr
 			}
 		}
 	}
-	fmt.Sprintf("--- finish the process of tkr-bom ---\n")
+	return nil
 }
 
 func publishImagesToTar(cmd *cobra.Command, args []string) error {
 	pullImage.PkgClient = &imgpkgclient{}
 	if !IsTagValid(pullImage.tkgVersion) {
-		printErrorAndExit(fmt.Errorf("Invalid TKG Tag %s", pullImage.tkgVersion))
+		return fmt.Errorf("Invalid TKG Tag %s", pullImage.tkgVersion)
 	}
 	if pullImage.tkgImageRepo == "" { //TODO : Put more validation
-		printErrorAndExit(fmt.Errorf("Invalid tkgImageRepository %s", pullImage.tkgImageRepo))
+		return fmt.Errorf("Invalid tkgImageRepository %s", pullImage.tkgImageRepo)
 	}
 	if pullImage.customImageRepo == "" {
-		printErrorAndExit(fmt.Errorf("Invalid customImageRepo %s", pullImage.customImageRepo))
+		return fmt.Errorf("Invalid customImageRepo %s", pullImage.customImageRepo)
 	}
 	pullImage.downloadTkgCompatibilityImage()
 	pullImage.downloadTkgBomAndComponentImages()
-	tkrVersions := pullImage.downloadTkrCompatibilityImage("tkr-compatibility")
+	tkrVersions , err := pullImage.downloadTkrCompatibilityImage("tkr-compatibility")
+        if err != nil {
+                return errors.Wrapf(err, "Error while retrieving tkrVersions")
+        }
 	for _, tkrVersion := range tkrVersions {
 		pullImage.downloadTkrBomAndComponentImages(tkrVersion)
 	}
 
 	data, _ := yaml.Marshal(&imageDetails)
-	err := os.WriteFile("publish-images-fromtar.yaml", data, 0666)
-	if err != nil {
-		printErrorAndExit(errors.Wrapf(err, "Error while writing publish-images-fromtar.yaml file"))
+	err2 := os.WriteFile("publish-images-fromtar.yaml", data, 0666)
+	if err2 != nil {
+		return errors.Wrapf(err2, "Error while writing publish-images-fromtar.yaml file")
 	}
-	fmt.Sprintf("Success! Copied a total number of %v images.\n", totalImgCopiedCounter)
+	//	fmt.Sprintf("Success! Copied a total number of %v images.\n", totalImgCopiedCounter)
 
 	return nil
 }

@@ -12,13 +12,13 @@ import (
 	"sigs.k8s.io/yaml"
 )
 
-type publishImagesFromTarOptions struct {
+type PublishImagesFromTarOptions struct {
 	tkgTarFilePath             string
 	customImageRepoCertificate string
 	PkgClient                  ImgPkgClient
 }
 
-var pushImage = &publishImagesFromTarOptions{}
+var pushImage = &PublishImagesFromTarOptions{}
 
 var PublishImagesfromtarCmd = &cobra.Command{
 	Use:          "publish-image-from-tar",
@@ -32,28 +32,29 @@ func init() {
 	PublishImagesfromtarCmd.Flags().StringVarP(&pushImage.customImageRepoCertificate, "customRepoCertificate", "", "", "custom repo certificate")
 }
 
-func (pushImage *publishImagesFromTarOptions) pushImageToRepo() {
+func (pushImage *PublishImagesFromTarOptions) PushImageToRepo() error {
 	yamlFile := filepath.Join(pushImage.tkgTarFilePath, "publish-images-fromtar.yaml")
 	yfile, err := os.ReadFile(yamlFile)
 	if err != nil {
-		printErrorAndExit(errors.Wrapf(err, " Error while reading publish-images-fromtar.yaml file"))
+		return errors.Wrapf(err, "Error while reading publish-images-fromtar.yaml file")
 	}
 
 	data := make(map[string]string)
 	err2 := yaml.Unmarshal(yfile, &data)
 
 	if err2 != nil {
-		printErrorAndExit(errors.Wrapf(err2, " Error while reading publish-images-fromtar.yaml file"))
+		return errors.Wrapf(err2, "Error while reading publish-images-fromtar.yaml file")
 	}
 
 	for tarfile, path := range data {
 		tarfile = filepath.Join(pushImage.tkgTarFilePath, tarfile)
 		pushImage.PkgClient.ImgpkgCopyImagefromtar(tarfile, path, pushImage.customImageRepoCertificate)
 	}
+	return nil
 
 }
 func publishImagesFromTar(cmd *cobra.Command, args []string) error {
 	pushImage.PkgClient = &imgpkgclient{}
-	pushImage.pushImageToRepo()
+	pushImage.PushImageToRepo()
 	return nil
 }
