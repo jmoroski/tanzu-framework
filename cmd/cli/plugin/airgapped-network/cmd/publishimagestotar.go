@@ -18,12 +18,13 @@ import (
 
 var imageDetails = map[string]string{}
 
-var totalImgCopiedCounter int = 0
+var totalImgCopiedCounter int
+
+const outputDir = "tmp"
 
 type publishImagesToTarOptions struct {
 	tkgImageRepo    string
 	tkgVersion      string
-	tarFilePath     string
 	customImageRepo string
 	PkgClient       ImgPkgClient
 }
@@ -62,7 +63,6 @@ func (pullImage *publishImagesToTarOptions) downloadTkgBomAndComponentImages() e
 	destRepo := path.Join(pullImage.customImageRepo, tkgBomImagePath)
 	imageDetails[tarnames] = destRepo
 	pullImage.PkgClient.ImgpkgCopytotar(sourceImageName, tarnames)
-	outputDir := "tmp"
 	pullImage.PkgClient.ImgpkgPullImage(sourceImageName, outputDir)
 	// read the tkg-bom file
 	tkgBomFilePath := filepath.Join(outputDir, fmt.Sprintf("tkg-bom-%s.yaml", pullImage.tkgVersion))
@@ -72,9 +72,9 @@ func (pullImage *publishImagesToTarOptions) downloadTkgBomAndComponentImages() e
 	if err != nil {
 		return errors.Wrapf(err, "read tkg-bom file from %s faild", tkgBomFilePath)
 	}
-	tkgBom, err := tkrv1.NewBom(b)
+	tkgBom, _ := tkrv1.NewBom(b)
 	// imgpkg copy each component's artifacts
-	components, err := tkgBom.Components()
+	components, _ := tkgBom.Components()
 	for _, compInfos := range components {
 		for _, compInfo := range compInfos {
 			for _, imageInfo := range compInfo.Images {
@@ -98,7 +98,6 @@ func (pullImage *publishImagesToTarOptions) downloadTkrCompatibilityImage(tkrCom
 	tkrCompatibilityImageURL := tkrCompatibilityImagePath + ":" + imageTags[len(imageTags)-1]
 
 	sourceImageName := tkrCompatibilityImageURL
-	outputDir := "tmp"
 	pullImage.PkgClient.ImgpkgPullImage(sourceImageName, outputDir)
 	files, err := os.ReadDir("tmp")
 	if err != nil {
@@ -148,7 +147,6 @@ func (pullImage *publishImagesToTarOptions) downloadTkrBomAndComponentImages(tkr
 	pullImage.PkgClient.ImgpkgCopytotar(sourceImageName, tarFilename)
 
 	sourceImageName = tkrBomImagePath + ":" + tkrTag
-	outputDir := "tmp"
 	pullImage.PkgClient.ImgpkgPullImage(sourceImageName, outputDir)
 
 	// read the tkr-bom file
@@ -157,9 +155,9 @@ func (pullImage *publishImagesToTarOptions) downloadTkrBomAndComponentImages(tkr
 	if err != nil {
 		return errors.Wrapf(err, "read tkr-bom file from %s faild", tkrBomFilePath)
 	}
-	tkgBom, err := tkrv1.NewBom(b)
+	tkgBom, _ := tkrv1.NewBom(b)
 	// imgpkg copy each component's artifacts
-	components, err := tkgBom.Components()
+	components, _ := tkgBom.Components()
 	for _, compInfos := range components {
 		for _, compInfo := range compInfos {
 			for _, imageInfo := range compInfo.Images {
@@ -178,22 +176,28 @@ func (pullImage *publishImagesToTarOptions) downloadTkrBomAndComponentImages(tkr
 func publishImagesToTar(cmd *cobra.Command, args []string) error {
 	pullImage.PkgClient = &imgpkgclient{}
 	if !IsTagValid(pullImage.tkgVersion) {
-		return fmt.Errorf("Invalid TKG Tag %s", pullImage.tkgVersion)
+		return fmt.Errorf("invalid TKG Tag %s", pullImage.tkgVersion)
 	}
-	if pullImage.tkgImageRepo == "" { //TODO : Put more validation
-		return fmt.Errorf("Invalid tkgImageRepository %s", pullImage.tkgImageRepo)
+	if pullImage.tkgImageRepo == "" { // TODO : Put more validation
+		return fmt.Errorf("invalid tkgImageRepository %s", pullImage.tkgImageRepo)
 	}
 	if pullImage.customImageRepo == "" {
-		return fmt.Errorf("Invalid customImageRepo %s", pullImage.customImageRepo)
+		return fmt.Errorf("invalid customImageRepo %s", pullImage.customImageRepo)
 	}
 	pullImage.downloadTkgCompatibilityImage()
-	pullImage.downloadTkgBomAndComponentImages()
+	err := pullImage.downloadTkgBomAndComponentImages()
+	if err != nil {
+		return err
+	}
 	tkrVersions, err := pullImage.downloadTkrCompatibilityImage("tkr-compatibility")
 	if err != nil {
 		return errors.Wrapf(err, "Error while retrieving tkrVersions")
 	}
 	for _, tkrVersion := range tkrVersions {
-		pullImage.downloadTkrBomAndComponentImages(tkrVersion)
+		err = pullImage.downloadTkrBomAndComponentImages(tkrVersion)
+		if err != nil {
+			return err
+		}
 	}
 
 	data, _ := yaml.Marshal(&imageDetails)
@@ -201,7 +205,5 @@ func publishImagesToTar(cmd *cobra.Command, args []string) error {
 	if err2 != nil {
 		return errors.Wrapf(err2, "Error while writing publish-images-fromtar.yaml file")
 	}
-	//	fmt.Sprintf("Success! Copied a total number of %v images.\n", totalImgCopiedCounter)
-
 	return nil
 }

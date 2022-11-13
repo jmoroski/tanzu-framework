@@ -11,7 +11,7 @@ import (
 )
 
 func printErrorAndExit(err error) {
-	fmt.Printf(err.Error())
+	fmt.Printf("failed with error %s\n", err.Error())
 	os.Exit(1)
 }
 
@@ -35,7 +35,6 @@ func IsTagValid(tag string) bool {
 		}
 	}
 	return true
-
 }
 
 func underscoredPlus(s string) string {

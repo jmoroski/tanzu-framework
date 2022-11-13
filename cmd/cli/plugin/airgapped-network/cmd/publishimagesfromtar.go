@@ -51,8 +51,8 @@ func (pushImage *PublishImagesFromTarOptions) PushImageToRepo() error {
 		pushImage.PkgClient.ImgpkgCopyImagefromtar(tarfile, path, pushImage.customImageRepoCertificate)
 	}
 	return nil
-
 }
+
 func publishImagesFromTar(cmd *cobra.Command, args []string) error {
 	pushImage.PkgClient = &imgpkgclient{}
 	err := pushImage.PushImageToRepo()

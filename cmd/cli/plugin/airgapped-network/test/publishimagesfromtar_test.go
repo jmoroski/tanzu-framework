@@ -38,6 +38,7 @@ var _ = Describe("pushImageToRepo()", func() {
 		It("should return err", func() {
 			pushImage.TkgTarFilePath = "./testdata"
 			err := utils.CopyFile("./testdata/publish-images-fromtar_with_error.yaml", "./testdata/publish-images-fromtar.yaml")
+			Expect(err).ToNot(HaveOccurred())
 			err = pushImage.PushImageToRepo()
 			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(ContainSubstring("Error while parsing publish-images-fromtar.yaml file"))
