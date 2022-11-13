@@ -11,7 +11,7 @@ import (
 )
 
 func printErrorAndExit(err error) {
-	fmt.Sprintf(err.Error())
+	fmt.Printf(err.Error())
 	os.Exit(1)
 }
 
