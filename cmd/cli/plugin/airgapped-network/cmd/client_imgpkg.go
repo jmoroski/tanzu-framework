@@ -22,7 +22,7 @@ import (
 type imgpkgclient struct {
 }
 
-func (pkgClient *imgpkgclient) ImgpkgCopyImagefromtar(sourceImageName, destImageRepo, customImageRepoCertificate string) {
+func (pkgClient *imgpkgclient) ImgpkgCopyImagefromtar(sourceImageName, destImageRepo, customImageRepoCertificate string) error {
 	confUI := ui.NewConfUI(ui.NewNoopLogger())
 	copyOptions := cmd.NewCopyOptions(confUI)
 	copyOptions.Concurrency = 1
@@ -33,18 +33,19 @@ func (pkgClient *imgpkgclient) ImgpkgCopyImagefromtar(sourceImageName, destImage
 	}
 	err := copyOptions.Run()
 	if err != nil {
-		printErrorAndExit(err)
+		return err
 	}
+	return nil
 }
 
-func (pkgClient *imgpkgclient) ImgpkgCopytotar(sourceImageName, destImageRepo string) {
+func (pkgClient *imgpkgclient) ImgpkgCopytotar(sourceImageName, destImageRepo string) error {
 	confUI := ui.NewConfUI(ui.NewNoopLogger())
 	copyOptions := cmd.NewCopyOptions(confUI)
 	copyOptions.TarFlags.Resume = true
 	copyOptions.Concurrency = 5
 	reg, err := registry.NewSimpleRegistry(registry.Opts{})
 	if err != nil {
-		printErrorAndExit(err)
+		return err
 	}
 	newBundle := bundle.NewBundle(sourceImageName, reg)
 	isBundle, _ := newBundle.IsBundle()
@@ -56,12 +57,13 @@ func (pkgClient *imgpkgclient) ImgpkgCopytotar(sourceImageName, destImageRepo st
 	copyOptions.TarFlags.TarDst = destImageRepo
 	err = copyOptions.Run()
 	if err != nil {
-		printErrorAndExit(err)
+		return err
 	}
 	totalImgCopiedCounter++
+	return nil
 }
 
-func (pkgClient *imgpkgclient) ImgpkgPullImage(sourceImageName, destDir string) {
+func (pkgClient *imgpkgclient) ImgpkgPullImage(sourceImageName, destDir string) error {
 	var outputBuf, errorBuf bytes.Buffer
 	writerUI := ui.NewWriterUI(&outputBuf, &errorBuf, nil)
 	pullOptions := cmd.NewPullOptions(writerUI)
@@ -69,8 +71,9 @@ func (pkgClient *imgpkgclient) ImgpkgPullImage(sourceImageName, destDir string) 
 	pullOptions.ImageFlags = cmd.ImageFlags{Image: sourceImageName}
 	err := pullOptions.Run()
 	if err != nil {
-		printErrorAndExit(err)
+		return err
 	}
+	return nil
 }
 
 func (pkgClient *imgpkgclient) ImgpkgTagListImage(sourceImageName string) []string {

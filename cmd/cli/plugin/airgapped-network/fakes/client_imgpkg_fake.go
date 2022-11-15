@@ -8,24 +8,42 @@ import (
 )
 
 type ImgPkgClientFake struct {
-	ImgpkgCopyImagefromtarStub        func(string, string, string)
+	ImgpkgCopyImagefromtarStub        func(string, string, string) error
 	imgpkgCopyImagefromtarMutex       sync.RWMutex
 	imgpkgCopyImagefromtarArgsForCall []struct {
 		arg1 string
 		arg2 string
 		arg3 string
 	}
-	ImgpkgCopytotarStub        func(string, string)
+	imgpkgCopyImagefromtarReturns struct {
+		result1 error
+	}
+	imgpkgCopyImagefromtarReturnsOnCall map[int]struct {
+		result1 error
+	}
+	ImgpkgCopytotarStub        func(string, string) error
 	imgpkgCopytotarMutex       sync.RWMutex
 	imgpkgCopytotarArgsForCall []struct {
 		arg1 string
 		arg2 string
 	}
-	ImgpkgPullImageStub        func(string, string)
+	imgpkgCopytotarReturns struct {
+		result1 error
+	}
+	imgpkgCopytotarReturnsOnCall map[int]struct {
+		result1 error
+	}
+	ImgpkgPullImageStub        func(string, string) error
 	imgpkgPullImageMutex       sync.RWMutex
 	imgpkgPullImageArgsForCall []struct {
 		arg1 string
 		arg2 string
+	}
+	imgpkgPullImageReturns struct {
+		result1 error
+	}
+	imgpkgPullImageReturnsOnCall map[int]struct {
+		result1 error
 	}
 	ImgpkgTagListImageStub        func(string) []string
 	imgpkgTagListImageMutex       sync.RWMutex
@@ -42,19 +60,25 @@ type ImgPkgClientFake struct {
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *ImgPkgClientFake) ImgpkgCopyImagefromtar(arg1 string, arg2 string, arg3 string) {
+func (fake *ImgPkgClientFake) ImgpkgCopyImagefromtar(arg1 string, arg2 string, arg3 string) error {
 	fake.imgpkgCopyImagefromtarMutex.Lock()
+	ret, specificReturn := fake.imgpkgCopyImagefromtarReturnsOnCall[len(fake.imgpkgCopyImagefromtarArgsForCall)]
 	fake.imgpkgCopyImagefromtarArgsForCall = append(fake.imgpkgCopyImagefromtarArgsForCall, struct {
 		arg1 string
 		arg2 string
 		arg3 string
 	}{arg1, arg2, arg3})
 	stub := fake.ImgpkgCopyImagefromtarStub
+	fakeReturns := fake.imgpkgCopyImagefromtarReturns
 	fake.recordInvocation("ImgpkgCopyImagefromtar", []interface{}{arg1, arg2, arg3})
 	fake.imgpkgCopyImagefromtarMutex.Unlock()
 	if stub != nil {
-		fake.ImgpkgCopyImagefromtarStub(arg1, arg2, arg3)
+		return stub(arg1, arg2, arg3)
 	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
 }
 
 func (fake *ImgPkgClientFake) ImgpkgCopyImagefromtarCallCount() int {
@@ -63,7 +87,7 @@ func (fake *ImgPkgClientFake) ImgpkgCopyImagefromtarCallCount() int {
 	return len(fake.imgpkgCopyImagefromtarArgsForCall)
 }
 
-func (fake *ImgPkgClientFake) ImgpkgCopyImagefromtarCalls(stub func(string, string, string)) {
+func (fake *ImgPkgClientFake) ImgpkgCopyImagefromtarCalls(stub func(string, string, string) error) {
 	fake.imgpkgCopyImagefromtarMutex.Lock()
 	defer fake.imgpkgCopyImagefromtarMutex.Unlock()
 	fake.ImgpkgCopyImagefromtarStub = stub
@@ -76,18 +100,47 @@ func (fake *ImgPkgClientFake) ImgpkgCopyImagefromtarArgsForCall(i int) (string, 
 	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
 }
 
-func (fake *ImgPkgClientFake) ImgpkgCopytotar(arg1 string, arg2 string) {
+func (fake *ImgPkgClientFake) ImgpkgCopyImagefromtarReturns(result1 error) {
+	fake.imgpkgCopyImagefromtarMutex.Lock()
+	defer fake.imgpkgCopyImagefromtarMutex.Unlock()
+	fake.ImgpkgCopyImagefromtarStub = nil
+	fake.imgpkgCopyImagefromtarReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *ImgPkgClientFake) ImgpkgCopyImagefromtarReturnsOnCall(i int, result1 error) {
+	fake.imgpkgCopyImagefromtarMutex.Lock()
+	defer fake.imgpkgCopyImagefromtarMutex.Unlock()
+	fake.ImgpkgCopyImagefromtarStub = nil
+	if fake.imgpkgCopyImagefromtarReturnsOnCall == nil {
+		fake.imgpkgCopyImagefromtarReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.imgpkgCopyImagefromtarReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *ImgPkgClientFake) ImgpkgCopytotar(arg1 string, arg2 string) error {
 	fake.imgpkgCopytotarMutex.Lock()
+	ret, specificReturn := fake.imgpkgCopytotarReturnsOnCall[len(fake.imgpkgCopytotarArgsForCall)]
 	fake.imgpkgCopytotarArgsForCall = append(fake.imgpkgCopytotarArgsForCall, struct {
 		arg1 string
 		arg2 string
 	}{arg1, arg2})
 	stub := fake.ImgpkgCopytotarStub
+	fakeReturns := fake.imgpkgCopytotarReturns
 	fake.recordInvocation("ImgpkgCopytotar", []interface{}{arg1, arg2})
 	fake.imgpkgCopytotarMutex.Unlock()
 	if stub != nil {
-		fake.ImgpkgCopytotarStub(arg1, arg2)
+		return stub(arg1, arg2)
 	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
 }
 
 func (fake *ImgPkgClientFake) ImgpkgCopytotarCallCount() int {
@@ -96,7 +149,7 @@ func (fake *ImgPkgClientFake) ImgpkgCopytotarCallCount() int {
 	return len(fake.imgpkgCopytotarArgsForCall)
 }
 
-func (fake *ImgPkgClientFake) ImgpkgCopytotarCalls(stub func(string, string)) {
+func (fake *ImgPkgClientFake) ImgpkgCopytotarCalls(stub func(string, string) error) {
 	fake.imgpkgCopytotarMutex.Lock()
 	defer fake.imgpkgCopytotarMutex.Unlock()
 	fake.ImgpkgCopytotarStub = stub
@@ -109,18 +162,47 @@ func (fake *ImgPkgClientFake) ImgpkgCopytotarArgsForCall(i int) (string, string)
 	return argsForCall.arg1, argsForCall.arg2
 }
 
-func (fake *ImgPkgClientFake) ImgpkgPullImage(arg1 string, arg2 string) {
+func (fake *ImgPkgClientFake) ImgpkgCopytotarReturns(result1 error) {
+	fake.imgpkgCopytotarMutex.Lock()
+	defer fake.imgpkgCopytotarMutex.Unlock()
+	fake.ImgpkgCopytotarStub = nil
+	fake.imgpkgCopytotarReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *ImgPkgClientFake) ImgpkgCopytotarReturnsOnCall(i int, result1 error) {
+	fake.imgpkgCopytotarMutex.Lock()
+	defer fake.imgpkgCopytotarMutex.Unlock()
+	fake.ImgpkgCopytotarStub = nil
+	if fake.imgpkgCopytotarReturnsOnCall == nil {
+		fake.imgpkgCopytotarReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.imgpkgCopytotarReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *ImgPkgClientFake) ImgpkgPullImage(arg1 string, arg2 string) error {
 	fake.imgpkgPullImageMutex.Lock()
+	ret, specificReturn := fake.imgpkgPullImageReturnsOnCall[len(fake.imgpkgPullImageArgsForCall)]
 	fake.imgpkgPullImageArgsForCall = append(fake.imgpkgPullImageArgsForCall, struct {
 		arg1 string
 		arg2 string
 	}{arg1, arg2})
 	stub := fake.ImgpkgPullImageStub
+	fakeReturns := fake.imgpkgPullImageReturns
 	fake.recordInvocation("ImgpkgPullImage", []interface{}{arg1, arg2})
 	fake.imgpkgPullImageMutex.Unlock()
 	if stub != nil {
-		fake.ImgpkgPullImageStub(arg1, arg2)
+		return stub(arg1, arg2)
 	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
 }
 
 func (fake *ImgPkgClientFake) ImgpkgPullImageCallCount() int {
@@ -129,7 +211,7 @@ func (fake *ImgPkgClientFake) ImgpkgPullImageCallCount() int {
 	return len(fake.imgpkgPullImageArgsForCall)
 }
 
-func (fake *ImgPkgClientFake) ImgpkgPullImageCalls(stub func(string, string)) {
+func (fake *ImgPkgClientFake) ImgpkgPullImageCalls(stub func(string, string) error) {
 	fake.imgpkgPullImageMutex.Lock()
 	defer fake.imgpkgPullImageMutex.Unlock()
 	fake.ImgpkgPullImageStub = stub
@@ -140,6 +222,29 @@ func (fake *ImgPkgClientFake) ImgpkgPullImageArgsForCall(i int) (string, string)
 	defer fake.imgpkgPullImageMutex.RUnlock()
 	argsForCall := fake.imgpkgPullImageArgsForCall[i]
 	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *ImgPkgClientFake) ImgpkgPullImageReturns(result1 error) {
+	fake.imgpkgPullImageMutex.Lock()
+	defer fake.imgpkgPullImageMutex.Unlock()
+	fake.ImgpkgPullImageStub = nil
+	fake.imgpkgPullImageReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *ImgPkgClientFake) ImgpkgPullImageReturnsOnCall(i int, result1 error) {
+	fake.imgpkgPullImageMutex.Lock()
+	defer fake.imgpkgPullImageMutex.Unlock()
+	fake.ImgpkgPullImageStub = nil
+	if fake.imgpkgPullImageReturnsOnCall == nil {
+		fake.imgpkgPullImageReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.imgpkgPullImageReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
 }
 
 func (fake *ImgPkgClientFake) ImgpkgTagListImage(arg1 string) []string {

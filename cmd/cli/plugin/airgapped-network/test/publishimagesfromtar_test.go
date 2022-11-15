@@ -44,5 +44,14 @@ var _ = Describe("pushImageToRepo()", func() {
 			Expect(err.Error()).To(ContainSubstring("Error while parsing publish-images-fromtar.yaml file"))
 		})
 	})
+	When("publish-images-fromtar.yaml, which contain tar file name and destination repo path, has wrong format", func() {
+		It("should return err", func() {
+			pushImage.TkgTarFilePath = "./testdata"
+			err := utils.CopyFile("./testdata/publish-images-fromtar", "./testdata/publish-images-fromtar.yaml")
+			Expect(err).ToNot(HaveOccurred())
+			err = pushImage.PushImageToRepo()
+			Expect(err).ToNot(HaveOccurred())
+		})
+	})
 
 })
